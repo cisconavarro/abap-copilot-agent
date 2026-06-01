@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Generador Manual Agente IA</title>
+<script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
+<script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+<style>
+  body{font-family:Arial,sans-serif;background:#1a1a2e;color:#eee;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}
+  .card{background:#16213e;border-radius:12px;padding:40px;max-width:600px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+  h1{color:#4fc3f7;margin-bottom:10px}
+  p{color:#b0bec5;margin-bottom:30px}
+  button{background:linear-gradient(135deg,#1565c0,#4fc3f7);color:white;border:none;padding:16px 32px;border-radius:8px;font-size:16px;cursor:pointer;transition:all 0.3s}
+  button:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(79,195,247,0.4)}
+  .status{margin-top:20px;padding:12px;border-radius:6px;display:none}
+  .status.show{display:block;background:#1b5e20;border:1px solid #2e7d32;color:#a5d6a7}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>📄 Manual: Crear Agente IA en GitHub Copilot</h1>
+  <p>Genera el documento Word completo con todos los pasos, configuraciones y explicaciones para crear un agente IA consultor senior ABAP.</p>
+  <button onclick="generarDocumento()">⬇️ Generar y Descargar Manual .docx</button>
+  <div class="status" id="status">✅ Documento generado correctamente. Revisa tus descargas.</div>
+</div>
+<script>
+async function generarDocumento() {
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle, Table, TableRow, TableCell, WidthType, ShadingType, PageBreak, ImageRun, ExternalHyperlink } = docx;
+
+  const RED = "C0392B";
+  const BLUE = "1565C0";
+  const DARK = "1A1A2E";
+  const LIGHT_GRAY = "F5F5F5";
+
+  function titulo(text) {
+    return new Paragraph({
+      text: text,
+      heading: HeadingLevel.HEADING_1,
+      thematicBreak: false,
+      spacing: { before: 400, after: 200 },
+      run: { color: BLUE, bold: true }
+    });
+  }
+
+  function subtitulo(text) {
+    return new Paragraph({
+      text: text,
+      heading: HeadingLevel.HEADING_2,
+      spacing: { before: 300, after: 150 }
+    });
+  }
+
+  function paso(num, text) {
+    return new Paragraph({
+      children: [
+        new TextRun({ text: "PASO " + num + ": ", bold: true, color: RED, size: 24 }),
+        new TextRun({ text: text, bold: true, size: 24 })
+      ],
+      spacing: { before: 300, after: 100 },
+      border: { left: { style: BorderStyle.THICK, size: 6, color: RED } },
+      indent: { left: 200 }
+    });
+  }
+
+  function explicacion(text) {
+    return new Paragraph({
+      children: [new TextRun({ text: text, size: 20, color: "333333" })],
+      spacing: { before: 100, after: 100 },
+      indent: { left: 300 }
+    });
+  }
+
+  function nota(text) {
+    return new Paragraph({
+      children: [
+        new TextRun({ text: "💡 NOTA: ", bold: true, color: "E65100", size: 20 }),
+        new TextRun({ text: text, italics: true, size: 20, color: "555555" })
+      ],
+      spacing: { before: 100, after: 200 },
+      indent: { left: 300 },
+      shading: { type: ShadingType.CLEAR, fill: "FFF3E0" }
+    });
+  }
+
+  function codigo(text) {
+    return new Paragraph({
+      children: [new TextRun({ text: text, font: "Courier New", size: 18, color: "1B5E20" })],
+      spacing: { before: 60, after: 60 },
+      indent: { left: 400 },
+      shading: { type: ShadingType.CLEAR, fill: "F1F8E9" },
+      border: { all: { style: BorderStyle.SINGLE, size: 1, color: "C5E1A5" } }
+    });
+  }
+
+  function separador() {
+    return new Paragraph({ text: "", thematicBreak: true, spacing: { before: 200, after: 200 } });
+  }
+
+  function lineaVacia() {
+    return new Paragraph({ text: "", spacing: { before: 100, after: 100 } });
+  }
+
+  function textoNormal(text) {
+    return new Paragraph({
+      children: [new TextRun({ text: text, size: 20 })],
+      spacing: { before: 80, after: 80 },
+      indent: { left: 300 }
+    });
+  }
+
+  function viñeta(text) {
+    return new Paragraph({
+      children: [new TextRun({ text: "• " + text, size: 20 })],
+      spacing: { before: 60, after: 60 },
+      indent: { left: 500 }
+    });
+  }
+
+  function recuadroRojo(text) {
+    return new Paragraph({
+      children: [
+        new TextRun({ text: "🔴 CLIC AQUÍ: ", bold: true, color: RED, size: 20 }),
+        new TextRun({ text: text, bold: true, size: 20, color: RED })
+      ],
+      spacing: { before: 100, after: 100 },
+      indent: { left: 300 },
+      border: { all: { style: BorderStyle.DOUBLE, size: 4, color: RED } },
+      shading: { type: ShadingType.CLEAR, fill: "FFEBEE" }
+    });
+  }
+
+  const doc = new Document({
+    sections: [{
+      properties: {},
+      children: [
+
+        // PORTADA
+        new Paragraph({
+          children: [new TextRun({ text: "", break: 3 })],
+        }),
+        new Paragraph({
+          children: [new TextRun({ text: "MANUAL TÉCNICO", bold: true, size: 52, color: BLUE })],
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 200 }
+        }),
+        new Paragraph({
+          children: [new TextRun({ text: "Cómo Crear un Agente IA", bold: true, size: 48, color: DARK })],
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 100 }
+        }),
+        new Paragraph({
+          children: [new TextRun({ text: "en GitHub Copilot", bold: true, size: 48, color: DARK })],
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 300 }
+        }),
+        new Paragraph({
+          children: [new TextRun({ text: "Consultor Senior ABAP", bold: true, size: 36, color: RED })],
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 100 }
+        }),
+        new Paragraph({
+          children: [new TextRun({ text: "Clean ABAP • RAP • SAP Fiori • OData • Eclipse ADT", size: 24, color: "555555", italics: true })],
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 400 }
+        }),
+        separador(),
+        new Paragraph({
+          children: [new TextRun({ text: "Autor: cisconavarro  |  GitHub Copilot Free  |  Junio 2026", size: 18, color: "888888" })],
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 200 }
+        }),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // ÍNDICE
+        titulo("📋 ÍNDICE DE CONTENIDOS"),
+        textoNormal("1. Introducción y Objetivos"),
+        textoNormal("2. Requisitos Previos"),
+        textoNormal("3. PASO 1: Acceder a GitHub.com e Iniciar Sesión"),
+        textoNormal("4. PASO 2: Navegar a la Configuración de GitHub Copilot"),
+        textoNormal("5. PASO 3: Crear un Copilot Space - Consultor-Senior-ABAP"),
+        textoNormal("6. PASO 4: Configurar las Instrucciones del Agente"),
+        textoNormal("7. PASO 5: Crear el Repositorio GitHub abap-copilot-agent"),
+        textoNormal("8. PASO 6: Crear el archivo .github/copilot-instructions.md"),
+        textoNormal("9. PASO 7: Crear el archivo .github/agents/consultor-abap.md"),
+        textoNormal("10. PASO 8: Verificar la Estructura Final del Repositorio"),
+        textoNormal("11. PASO 9: Configurar Eclipse ADT con el Plugin de Copilot"),
+        textoNormal("12. Contenido Completo de los Archivos de Configuración"),
+        textoNormal("13. Uso del Agente en Eclipse ADT"),
+        textoNormal("14. Troubleshooting y Preguntas Frecuentes"),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // SECCIÓN 1: INTRODUCCIÓN
+        titulo("1. 📖 INTRODUCCIÓN Y OBJETIVOS"),
+        explicacion("Este manual describe el proceso completo para crear un agente IA personalizado en GitHub Copilot, configurado como un Consultor Senior ABAP experto en:"),
+        viñeta("ABAP moderno y Clean ABAP (guía oficial SAP)"),
+        viñeta("RAP - RESTful ABAP Programming Model"),
+        viñeta("SAP Fiori Elements y freestyle SAPUI5"),
+        viñeta("OData V2 y V4"),
+        viñeta("Eclipse ADT (ABAP Development Tools)"),
+        lineaVacia(),
+        explicacion("El agente se integra directamente en Eclipse ADT a través del plugin oficial de GitHub Copilot, permitiendo obtener asistencia de código de nivel senior directamente en el IDE de desarrollo SAP."),
+        nota("Este agente genera código ABAP completo y funcional listo para activar en Eclipse ADT, siguiendo todas las buenas prácticas y convenciones de SAP."),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // SECCIÓN 2: REQUISITOS
+        titulo("2. ⚙️ REQUISITOS PREVIOS"),
+        subtitulo("Cuentas y Licencias"),
+        viñeta("Cuenta activa en GitHub.com (gratuita o de pago)"),
+        viñeta("GitHub Copilot habilitado (plan Free, Pro o Enterprise)"),
+        lineaVacia(),
+        subtitulo("Software Necesario"),
+        viñeta("Eclipse IDE for Java and DSL Developers (versión 2023-09 o superior)"),
+        viñeta("ABAP Development Tools (ADT) instalado como plugin en Eclipse"),
+        viñeta("Plugin GitHub Copilot para Eclipse (disponible en Eclipse Marketplace)"),
+        viñeta("Git instalado localmente"),
+        lineaVacia(),
+        subtitulo("Conocimientos Recomendados"),
+        viñeta("Conocimiento básico de GitHub y repositorios Git"),
+        viñeta("Familiaridad con Eclipse IDE"),
+        viñeta("Conocimiento básico de ABAP y desarrollo SAP"),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // PASO 1: LOGIN
+        titulo("3. PASO 1: Acceder a GitHub.com e Iniciar Sesión"),
+        paso(1, "Abrir el navegador y navegar a GitHub.com"),
+        explicacion("Abre tu navegador web preferido y escribe en la barra de direcciones:"),
+        codigo("https://github.com"),
+        explicacion("Se mostrará la página principal de GitHub. Si ya tienes una cuenta, haz clic en el botón 'Inicia sesión' en la esquina superior derecha."),
+        recuadroRojo("Botón 'Inicia sesión' en la esquina superior derecha de la página principal"),
+        lineaVacia(),
+
+        paso(2, "Navegar directamente a la página de login"),
+        explicacion("Alternativamente, navega directamente a la página de inicio de sesión:"),
+        codigo("https://github.com/login"),
+        lineaVacia(),
+        explicacion("Verás el formulario con dos campos:"),
+        viñeta("Username or email address — ingresa tu usuario o correo de GitHub"),
+        viñeta("Password — ingresa tu contraseña de GitHub"),
+        recuadroRojo("Campo 'Username or email address' — ingresa tus credenciales"),
+        recuadroRojo("Botón verde 'Sign in' para confirmar el inicio de sesión"),
+        nota("Por seguridad, el agente NO puede ingresar credenciales. Debes ingresarlas manualmente. Una vez dentro verás tu Dashboard de GitHub."),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // PASO 2: COPILOT SETTINGS
+        titulo("4. PASO 2: Navegar a la Configuración de GitHub Copilot"),
+        paso(3, "Ir a Settings → Copilot"),
+        explicacion("Una vez autenticado en GitHub, navega a la configuración de Copilot:"),
+        codigo("https://github.com/settings/copilot/features"),
+        explicacion("En esta pantalla encontrarás todas las funcionalidades disponibles de GitHub Copilot para tu cuenta. Las funciones habilitadas son:"),
+        viñeta("Copilot Chat in GitHub.com — Enabled"),
+        viñeta("Copilot CLI — Enabled"),
+        viñeta("Copilot can search the web — Enabled"),
+        viñeta("Copilot Spaces — Enabled"),
+        viñeta("MCP servers in Copilot — Enabled"),
+        lineaVacia(),
+        nota("Si tienes el plan Free, algunas funciones como 'Copilot cloud agent' aparecerán como Disabled. Esto es normal y no afecta la creación del agente local."),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // PASO 3: COPILOT SPACES
+        titulo("5. PASO 3: Crear un Copilot Space"),
+        paso(4, "Navegar a Copilot Spaces"),
+        explicacion("Desde el menú principal de Copilot, navega a la sección Spaces:"),
+        codigo("https://github.com/copilot/spaces"),
+        explicacion("Verás la página principal de Copilot Spaces con el mensaje 'Start your first space'."),
+        recuadroRojo("Botón verde 'Create space' en la esquina superior derecha"),
+        lineaVacia(),
+
+        paso(5, "Configurar el nuevo Space"),
+        explicacion("Al hacer clic en 'Create space', aparece un diálogo con los siguientes campos:"),
+        viñeta("Space name: Consultor-Senior-ABAP"),
+        viñeta("Owner: cisconavarro (tu usuario de GitHub)"),
+        viñeta("Visibility: Private (solo visible para ti)"),
+        recuadroRojo("Campo 'Space name' — escribe: Consultor-Senior-ABAP"),
+        recuadroRojo("Botón 'Create Space' para confirmar la creación"),
+        nota("El nombre del Space no puede contener espacios. Usa guiones como separadores."),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // PASO 4: INSTRUCCIONES
+        titulo("6. PASO 4: Configurar las Instrucciones del Agente en el Space"),
+        paso(6, "Abrir el editor de instrucciones"),
+        explicacion("Una vez creado el Space 'Consultor-Senior-ABAP', verás la interfaz principal con las siguientes secciones:"),
+        viñeta("Campo de chat: 'How can I help you?'"),
+        viñeta("Sección Instructions: para definir el comportamiento del agente"),
+        viñeta("Sección Sources: para agregar repositorios como contexto"),
+        recuadroRojo("Sección 'Instructions' — haz clic para abrir el editor de instrucciones"),
+        lineaVacia(),
+
+        paso(7, "Escribir las instrucciones del agente"),
+        explicacion("Se abre un cuadro de texto con límite de 4,000 caracteres. Las instrucciones definen el rol, comportamiento y especialidad del agente. Las instrucciones configuradas incluyen:"),
+        viñeta("Rol: Consultor SAP senior con 15+ años de experiencia"),
+        viñeta("Especialidad: ABAP moderno, RAP, Fiori/UI5, OData"),
+        viñeta("Estándares: Clean ABAP, convenciones SAP, manejo de excepciones"),
+        viñeta("RAP: Business Objects, CDS Views, Behavior Definitions"),
+        viñeta("Fiori: OData V2/V4, Fiori Elements, anotaciones UI"),
+        viñeta("Eclipse ADT: código compatible, ABAP Unit Tests, naming conventions"),
+        recuadroRojo("Botón 'Save' para guardar las instrucciones configuradas"),
+        nota("Las instrucciones ocuparon 1,729 de los 4,000 caracteres disponibles, dejando espacio para futuras mejoras."),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // PASO 5: REPOSITORIO
+        titulo("7. PASO 5: Crear el Repositorio GitHub"),
+        paso(8, "Ir a crear un nuevo repositorio"),
+        explicacion("Navega a la página de creación de repositorios:"),
+        codigo("https://github.com/new"),
+        explicacion("Rellena los campos del formulario con la siguiente información:"),
+        recuadroRojo("Campo 'Repository name' — escribe: abap-copilot-agent"),
+        lineaVacia(),
+
+        paso(9, "Configurar el repositorio"),
+        explicacion("Configuración utilizada:"),
+        viñeta("Repository name: abap-copilot-agent"),
+        viñeta("Description: Agente GitHub Copilot: Consultor Senior ABAP - Clean ABAP, RAP, Fiori, OData, Eclipse ADT"),
+        viñeta("Visibility: Public (para que el plugin de Eclipse pueda leerlo)"),
+        viñeta("Add README: ON (activado para inicializar el repositorio)"),
+        recuadroRojo("Toggle 'Add README' — activar (estado: ON)"),
+        recuadroRojo("Botón verde 'Create repository' para crear el repositorio"),
+        nota("El repositorio debe ser Public para que el plugin de GitHub Copilot en Eclipse ADT pueda leer los archivos de configuración automáticamente."),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // PASO 6: copilot-instructions.md
+        titulo("8. PASO 6: Crear el archivo .github/copilot-instructions.md"),
+        paso(10, "Navegar al editor de archivos"),
+        explicacion("Una vez creado el repositorio, navega directamente a la URL para crear el archivo de instrucciones:"),
+        codigo("https://github.com/cisconavarro/abap-copilot-agent/new/main?filename=.github/copilot-instructions.md"),
+        explicacion("Esta URL pre-rellena el nombre del archivo como '.github/copilot-instructions.md'. El editor de código de GitHub se abrirá automáticamente."),
+        nota("El archivo .github/copilot-instructions.md es el archivo ESTÁNDAR que GitHub Copilot lee automáticamente en TODOS los editores compatibles (Eclipse ADT, VS Code, etc.) cuando tienes el repositorio abierto localmente."),
+        lineaVacia(),
+
+        paso(11, "Escribir el contenido del archivo"),
+        explicacion("El archivo contiene las instrucciones permanentes del consultor ABAP. Incluye las siguientes secciones:"),
+        viñeta("## ROL Y COMPORTAMIENTO — Define el perfil del consultor"),
+        viñeta("## CLEAN ABAP Y BUENAS PRÁCTICAS — Estándares de codificación"),
+        viñeta("## RAP - RESTful ABAP Programming Model — Guía de implementación RAP"),
+        viñeta("## FIORI Y ODATA — Estándares de servicios y UI"),
+        viñeta("## ECLIPSE ADT — Configuración y uso en el IDE"),
+        viñeta("## EVITAR — Lista de antipatrones prohibidos"),
+        recuadroRojo("Botón 'Commit changes...' en la esquina superior derecha del editor"),
+        lineaVacia(),
+
+        paso(12, "Confirmar el commit"),
+        explicacion("Al hacer clic en 'Commit changes...' aparece el diálogo de confirmación:"),
+        viñeta("Commit message: feat: add copilot-instructions.md - Consultor Senior ABAP"),
+        viñeta("Seleccionar: 'Commit directly to the main branch'"),
+        recuadroRojo("Botón 'Commit changes' en el diálogo de confirmación"),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // PASO 7: agent file
+        titulo("9. PASO 7: Crear el archivo .github/agents/consultor-abap.md"),
+        paso(13, "Navegar al editor para el archivo del agente"),
+        explicacion("Navega a la siguiente URL para crear el archivo de definición del agente:"),
+        codigo("https://github.com/cisconavarro/abap-copilot-agent/new/main?filename=.github/agents/consultor-abap.md"),
+        explicacion("Este archivo define el agente personalizado que puedes invocar directamente en el chat de Copilot usando @consultor-abap."),
+        nota("La carpeta .github/agents/ es la ubicación estándar para definir agentes personalizados en GitHub Copilot (funcionalidad disponible desde 2025)."),
+        lineaVacia(),
+
+        paso(14, "Estructura del archivo del agente"),
+        explicacion("El archivo tiene una estructura YAML frontmatter + instrucciones markdown:"),
+        codigo("---"),
+        codigo("name: Consultor Senior ABAP"),
+        codigo("description: Consultor SAP senior experto en ABAP moderno, RAP, Fiori..."),
+        codigo("tools: []"),
+        codigo("---"),
+        codigo(""),
+        codigo("# Instrucciones del agente en formato Markdown"),
+        lineaVacia(),
+        explicacion("El contenido incluye las mismas instrucciones del Space pero optimizadas para invocación directa en el chat con @consultor-abap."),
+        recuadroRojo("Botón 'Commit changes...' para guardar el archivo del agente"),
+        lineaVacia(),
+
+        paso(15, "Confirmar el segundo commit"),
+        viñeta("Commit message: feat: add agent definition - consultor-abap.md"),
+        viñeta("Seleccionar: 'Commit directly to the main branch'"),
+        recuadroRojo("Botón 'Commit changes' en el diálogo de confirmación"),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // PASO 8: ESTRUCTURA FINAL
+        titulo("10. PASO 8: Verificar la Estructura Final del Repositorio"),
+        paso(16, "Revisar la estructura del repositorio"),
+        explicacion("Una vez creados todos los archivos, la estructura del repositorio debe verse así:"),
+        codigo("abap-copilot-agent/"),
+        codigo("├── .github/"),
+        codigo("│   ├── copilot-instructions.md   ← instrucciones automáticas"),
+        codigo("│   └── agents/"),
+        codigo("│       └── consultor-abap.md     ← agente @consultor-abap"),
+        codigo("└── README.md"),
+        lineaVacia(),
+        explicacion("El repositorio debería mostrar '3 Commits' confirmando que todos los archivos fueron creados correctamente. Puedes verificar navegando a:"),
+        codigo("https://github.com/cisconavarro/abap-copilot-agent"),
+        nota("Si ves la carpeta .github con los archivos correctos, la configuración del agente está completa en GitHub."),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // PASO 9: ECLIPSE ADT
+        titulo("11. PASO 9: Configurar Eclipse ADT con el Plugin de GitHub Copilot"),
+        paso(17, "Instalar el plugin de GitHub Copilot en Eclipse"),
+        explicacion("Abre Eclipse IDE y sigue estos pasos:"),
+        viñeta("1. Ve al menú Help → Eclipse Marketplace"),
+        viñeta("2. En el campo de búsqueda escribe: GitHub Copilot"),
+        viñeta("3. Busca el plugin oficial: 'GitHub Copilot' de GitHub Inc."),
+        viñeta("4. Haz clic en 'Install' y sigue el asistente"),
+        viñeta("5. Acepta los términos de licencia"),
+        viñeta("6. Reinicia Eclipse cuando se solicite"),
+        recuadroRojo("Help → Eclipse Marketplace → Buscar 'GitHub Copilot' → Install"),
+        lineaVacia(),
+
+        paso(18, "Autenticar GitHub Copilot en Eclipse"),
+        explicacion("Después de instalar y reiniciar Eclipse:"),
+        viñeta("1. Ve a Window → Preferences"),
+        viñeta("2. En el árbol de preferencias, busca: GitHub Copilot"),
+        viñeta("3. Haz clic en 'Sign in with GitHub'"),
+        viñeta("4. Se abrirá el navegador con una página de autenticación de GitHub"),
+        viñeta("5. Ingresa tu código de dispositivo en la página de GitHub"),
+        viñeta("6. Autoriza el acceso de Copilot a tu cuenta"),
+        viñeta("7. Vuelve a Eclipse — verás el estado como 'Authenticated'"),
+        recuadroRojo("Window → Preferences → GitHub Copilot → Sign in with GitHub"),
+        nota("Asegúrate de que tu cuenta de GitHub tenga GitHub Copilot habilitado (Free, Pro o Enterprise)."),
+        lineaVacia(),
+
+        paso(19, "Clonar y abrir el repositorio del agente en Eclipse"),
+        explicacion("Para que Copilot lea automáticamente las instrucciones del agente:"),
+        viñeta("1. Abre una terminal o Git Bash"),
+        viñeta("2. Clona el repositorio:"),
+        codigo("   git clone https://github.com/cisconavarro/abap-copilot-agent.git"),
+        viñeta("3. En Eclipse: File → Open Projects from File System"),
+        viñeta("4. Haz clic en 'Directory...' y selecciona la carpeta clonada"),
+        viñeta("5. Haz clic en 'Finish'"),
+        explicacion("Una vez abierto el proyecto, Copilot detectará automáticamente el archivo .github/copilot-instructions.md y aplicará las instrucciones del consultor ABAP en todos los chats."),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // SECCIÓN 12: CONTENIDO ARCHIVOS
+        titulo("12. 📄 CONTENIDO COMPLETO DE LOS ARCHIVOS DE CONFIGURACIÓN"),
+        subtitulo("Archivo: .github/copilot-instructions.md"),
+        explicacion("Este es el contenido completo que debe tener el archivo:"),
+        lineaVacia(),
+        codigo("# Instrucciones del Agente: Consultor Senior ABAP"),
+        codigo(""),
+        codigo("Eres un consultor SAP senior con más de 15 años de experiencia..."),
+        codigo("Trabajas en entorno local con Eclipse ADT generando código ABAP."),
+        codigo("Respondes en español por defecto."),
+        codigo(""),
+        codigo("## CLEAN ABAP Y BUENAS PRÁCTICAS"),
+        codigo("- Sigues la guía Clean ABAP de SAP"),
+        codigo("- Usas ABAP Objects con encapsulamiento correcto"),
+        codigo("- Evitas SELECT *, siempre especificas campos"),
+        codigo("- Separas acceso a datos (Repository pattern)"),
+        codigo("- Manejas excepciones con clases CX_"),
+        codigo("- Usas NEW, VALUE, CORRESPONDING, FILTER, REDUCE"),
+        codigo(""),
+        codigo("## RAP - RESTful ABAP Programming Model"),
+        codigo("- Nomenclatura: ZI_ interfaces CDS, ZC_ proyecciones"),
+        codigo("- Capas: CDS → BDEF → Behavior Impl → Service"),
+        codigo("- Validaciones, determinaciones y side effects"),
+        codigo(""),
+        codigo("## ECLIPSE ADT"),
+        codigo("- Código compatible con Eclipse ADT"),
+        codigo("- ABAP Unit Tests con CL_ABAP_UNIT_ASSERT"),
+        codigo("- Naming: ZCL_* clases, ZIF_* interfaces"),
+        lineaVacia(),
+
+        subtitulo("Archivo: .github/agents/consultor-abap.md"),
+        codigo("---"),
+        codigo("name: Consultor Senior ABAP"),
+        codigo("description: Consultor SAP senior experto en ABAP..."),
+        codigo("tools: []"),
+        codigo("---"),
+        codigo(""),
+        codigo("Eres un consultor SAP senior con más de 15 años..."),
+        codigo("## TU ESPECIALIDAD"),
+        codigo("- ABAP moderno y Clean ABAP"),
+        codigo("- RAP (managed y unmanaged)"),
+        codigo("- SAP Fiori Elements y freestyle SAPUI5"),
+        codigo("- OData V2 y V4"),
+        codigo("- ABAP Unit Testing"),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // SECCIÓN 13: USO
+        titulo("13. 🚀 USO DEL AGENTE EN ECLIPSE ADT"),
+        subtitulo("Abrir el panel de Copilot Chat"),
+        explicacion("Una vez configurado todo, puedes usar el agente de las siguientes formas:"),
+        viñeta("En Eclipse: View → Other → GitHub Copilot → Copilot Chat"),
+        viñeta("Atajo de teclado: Ctrl+Alt+I (puede variar según configuración)"),
+        lineaVacia(),
+
+        subtitulo("Uso con instrucciones automáticas (copilot-instructions.md)"),
+        explicacion("El archivo copilot-instructions.md se aplica automáticamente. Simplemente escribe en el chat:"),
+        codigo("Crea una clase ABAP para leer datos de la tabla SCARR"),
+        codigo("Implementa un Business Object RAP para gestión de vuelos"),
+        codigo("Revisa este código ABAP y aplica Clean ABAP"),
+        lineaVacia(),
+
+        subtitulo("Uso del agente personalizado (@consultor-abap)"),
+        explicacion("Para invocar el agente específico, usa el símbolo @ seguido del nombre:"),
+        codigo("@consultor-abap crea una clase ZCL_VUELOS_REPOSITORY"),
+        codigo("@consultor-abap implementa un RAP Business Object para SCARR"),
+        codigo("@consultor-abap revisa mi CDS View y agrega anotaciones Fiori"),
+        lineaVacia(),
+        nota("El agente responderá en español con código ABAP completo, funcional y listo para activar en Eclipse ADT, siguiendo todas las convenciones y buenas prácticas de SAP."),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        // SECCIÓN 14: TROUBLESHOOTING
+        titulo("14. 🔧 TROUBLESHOOTING Y PREGUNTAS FRECUENTES"),
+        lineaVacia(),
+        subtitulo("❓ El agente no aparece con @consultor-abap"),
+        viñeta("Verifica que el archivo .github/agents/consultor-abap.md existe en el repositorio"),
+        viñeta("Asegúrate de que el proyecto está abierto en Eclipse"),
+        viñeta("Reinicia Eclipse y vuelve a intentarlo"),
+        viñeta("Verifica que el plugin de Copilot está actualizado"),
+        lineaVacia(),
+
+        subtitulo("❓ Las instrucciones no se aplican automáticamente"),
+        viñeta("Verifica que el archivo está en .github/copilot-instructions.md (no en otra carpeta)"),
+        viñeta("El repositorio debe estar clonado localmente y abierto como proyecto en Eclipse"),
+        viñeta("Verifica que Copilot está autenticado: Window → Preferences → GitHub Copilot"),
+        lineaVacia(),
+
+        subtitulo("❓ Error al instalar el plugin de Copilot en Eclipse"),
+        viñeta("Verifica que usas Eclipse 2023-09 o superior"),
+        viñeta("Intenta instalar desde: https://marketplace.eclipse.org/content/github-copilot"),
+        viñeta("Si el marketplace no funciona, descarga el .vsix desde el sitio oficial de GitHub"),
+        lineaVacia(),
+
+        subtitulo("❓ El plugin requiere plan de pago"),
+        viñeta("GitHub Copilot Free incluye 2,000 completions/mes y 50 chats/mes"),
+        viñeta("Para uso intensivo, considera el plan Pro (10 USD/mes)"),
+        viñeta("Los archivos de configuración funcionan igual en todos los planes"),
+        lineaVacia(),
+        separador(),
+        lineaVacia(),
+        new Paragraph({
+          children: [new TextRun({ text: "Repositorio: https://github.com/cisconavarro/abap-copilot-agent", size: 18, color: BLUE, italics: true })],
+          alignment: AlignmentType.CENTER
+        }),
+        new Paragraph({
+          children: [new TextRun({ text: "Manual generado automáticamente — Junio 2026", size: 16, color: "888888" })],
+          alignment: AlignmentType.CENTER,
+          spacing: { before: 100 }
+        })
+      ]
+    }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, "Manual_Agente_IA_GitHub_Copilot_ABAP.docx");
+  document.getElementById("status").classList.add("show");
+}
+</script>
+</body>
+</html>
